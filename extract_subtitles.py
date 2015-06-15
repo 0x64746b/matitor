@@ -11,6 +11,7 @@ from __future__ import (
 
 
 import re
+import sys
 
 import sh
 
@@ -19,6 +20,8 @@ MKV_FILE = '<matroska file to extract subtitles from>'
 
 
 if __name__ == '__main__':
+
+    subtitle_tracks = []
 
     mkvinfo = sh.mkvinfo(MKV_FILE)
 
@@ -53,6 +56,18 @@ if __name__ == '__main__':
             name = name_field.group(1) if name_field else ''
 
             prefix = 'Track number {}:'.format(track_num)
+
             print('{} Language: {}'.format(prefix, language))
             if name:
                 print('{} Name: {}'.format(len(prefix) * ' ', name))
+
+            subtitle_tracks.append(track_num)
+
+    selected_track = raw_input(
+        'Please enter the number of the track to be extracted: '
+    )
+
+    if selected_track not in subtitle_tracks:
+        sys.exit(
+            '{} is not a valid track number. Exiting.'.format(selected_track)
+        )
