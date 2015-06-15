@@ -25,7 +25,12 @@ if __name__ == '__main__':
 
     subtitle_tracks = []
 
-    mkvinfo = sh.mkvinfo(MKV_FILE)
+    try:
+        mkvinfo = sh.mkvinfo(MKV_FILE)
+    except sh.ErrorReturnCode as error:
+        sys.exit(
+            '{} exited with code {}'.format(error.full_cmd, error.exit_code)
+        )
 
     segment_tracks = re.search(
         '^\|\+ Segment tracks\n'
