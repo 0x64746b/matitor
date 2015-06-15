@@ -52,4 +52,7 @@ if __name__ == '__main__':
             )
             name = name_field.group(1) if name_field else ''
 
-            print(track_num, language, name)
+            prefix = 'Track number {}:'.format(track_num)
+            print('{} Language: {}'.format(prefix, language))
+            if name:
+                print('{} Name: {}'.format(len(prefix) * ' ', name))
