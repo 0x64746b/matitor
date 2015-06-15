@@ -85,19 +85,15 @@ if __name__ == '__main__':
     )
 
     try:
-        sh.mkvextract(
+        for chunk in sh.mkvextract(
             'tracks',
             MKV_FILE,
-            '{}:{}'.format(selected_track, subtitle_file)
-        )
+            '{}:{}'.format(selected_track, subtitle_file),
+            _iter=True,
+            _out_bufsize=64,
+        ):
+            sys.stdout.write(chunk)
     except sh.ErrorReturnCode as error:
         sys.exit(
             '{} exited with code {}'.format(error.full_cmd, error.exit_code)
-        )
-    else:
-        print(
-            'Successfully extracted track {} to {}'.format(
-                selected_track,
-                subtitle_file
-            )
         )
