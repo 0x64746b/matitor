@@ -10,6 +10,7 @@ from __future__ import (
 )
 
 
+from os import path
 import re
 import sys
 
@@ -17,6 +18,7 @@ import sh
 
 
 MKV_FILE = '<matroska file to extract subtitles from>'
+SUBTITLE_EXTENSION = 'srt'
 
 
 if __name__ == '__main__':
@@ -70,4 +72,27 @@ if __name__ == '__main__':
     if selected_track not in subtitle_tracks:
         sys.exit(
             '{} is not a valid track number. Exiting.'.format(selected_track)
+        )
+
+    subtitle_file = '{}.{}'.format(
+        path.splitext(MKV_FILE)[0],
+        SUBTITLE_EXTENSION
+    )
+
+    try:
+        sh.mkvextract(
+            'tracks',
+            MKV_FILE,
+            '{}:{}'.format(selected_track, subtitle_file)
+        )
+    except sh.ErrorReturnCode as error:
+        sys.exit(
+            '{} exited with code {}'.format(error.full_cmd, error.exit_code)
+        )
+    else:
+        print(
+            'Successfully extracted track {} to {}'.format(
+                selected_track,
+                subtitle_file
+            )
         )
