@@ -48,24 +48,23 @@ class Track(object):
 class Extractor(object):
 
     def extract(self, mkv_file):
-        info = self._get_info(mkv_file)
-        tracks = self._get_tracks(info)
+        tracks = self._get_tracks(mkv_file)
         selected_track = self._ask_for_choice(tracks)
         self._extract_track(mkv_file, selected_track)
 
-    def _get_info(self, mkv_file):
+    def _get_tracks(self, mkv_file):
+        info = sh.mkvinfo(mkv_file).stdout
+
         try:
-            return sh.mkvinfo(mkv_file).stdout
-        except sh.ErrorReturnCode as error:
+            raw_tracks = self._parse_segment(info)
+        except AttributeError:
             sys.exit(
-                '{} exited with code {}'.format(
-                    error.full_cmd,
-                    error.exit_code
+                'Failed to find tracks segment in {}: {}'.format(
+                    mkv_file,
+                    info
                 )
             )
 
-    def _get_tracks(self, info):
-        raw_tracks = self._parse_segment(info)
         return self._parse_tracks(raw_tracks)
 
     def _parse_segment(self, info):
