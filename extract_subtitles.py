@@ -2,6 +2,9 @@
 # coding: utf-8
 
 
+"""Extract subtitles from a Matroska file."""
+
+
 from __future__ import (
     absolute_import,
     division,
@@ -10,6 +13,7 @@ from __future__ import (
 )
 
 
+import argparse
 from os import path
 import re
 import sys
@@ -17,7 +21,6 @@ import sys
 import sh
 
 
-MKV_FILE = '<matroska file to extract subtitles from>'
 SUBTITLE_EXTENSION = 'srt'
 
 
@@ -44,11 +47,11 @@ class Track(object):
 
 class Extractor(object):
 
-    def extract(self):
-        info = self._get_info(MKV_FILE)
+    def extract(self, mkv_file):
+        info = self._get_info(mkv_file)
         tracks = self._get_tracks(info)
         selected_track = self._ask_for_choice(tracks)
-        self._extract_track(selected_track)
+        self._extract_track(mkv_file, selected_track)
 
     def _get_info(self, mkv_file):
         try:
@@ -124,17 +127,17 @@ class Extractor(object):
                 )
             )
 
-    def _extract_track(self, track_number):
+    def _extract_track(self, mkv_file, track_number):
 
         subtitle_file = '{}.{}'.format(
-            path.splitext(MKV_FILE)[0],
+            path.splitext(mkv_file)[0],
             SUBTITLE_EXTENSION
         )
 
         try:
             for chunk in sh.mkvextract(
                 'tracks',
-                MKV_FILE,
+                mkv_file,
                 '{}:{}'.format(track_number, subtitle_file),
                 _iter=True,
                 _out_bufsize=64,
@@ -148,6 +151,13 @@ class Extractor(object):
                 )
             )
 
-
 if __name__ == '__main__':
-    Extractor().extract()
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        'mkv_file',
+        help='the .mkv to extract an .srt from'
+    )
+    args = parser.parse_args()
+
+    Extractor().extract(args.mkv_file)
